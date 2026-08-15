@@ -1,6 +1,5 @@
 #include "ble_server.h"
 #include "esp_log.h"
-#include "nvs_flash.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -99,16 +98,6 @@ static void nimble_host_task(void *param)
 esp_err_t ble_server_init(ble_intensity_cb_t cb)
 {
   g_intensity_cb = cb;
-
-  // Initialize NVS (Non-Volatile Storage)
-  esp_err_t ret = nvs_flash_init();
-  if (ret == ESP_ERR_NVS_NO_FREE_PAGES ||
-      ret == ESP_ERR_NVS_NEW_VERSION_FOUND)
-  {
-    ESP_ERROR_CHECK(nvs_flash_erase());
-    ret = nvs_flash_init();
-  }
-  ESP_ERROR_CHECK(ret);
 
   ESP_ERROR_CHECK(nimble_port_init()); // No idea why it's named nimble_port_init() instead of simply nimble_init()
 

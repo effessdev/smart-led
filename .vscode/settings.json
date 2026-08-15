@@ -12,5 +12,6 @@
     "--query-driver=**",
     "--compile-commands-dir=c:\\Users\\fasee\\Temp\\repos\\smart-led\\build"
   ],
-  "idf.portWin": "COM3"
+  "idf.portWin": "COM3",
+  "idf.flashType": "UART"
 }
