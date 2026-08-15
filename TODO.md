@@ -4,3 +4,4 @@
 - [x] Control the LED using phone app.
 - [ ] Make the intensity and pattern of the LED object persistent.
 - [ ] Backup the intensity and pattern in custom backend.
+- [ ] Add OTA firmware updating.
