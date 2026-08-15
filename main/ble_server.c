@@ -11,7 +11,7 @@
 #include "services/gatt/ble_svc_gatt.h" // GATT = Generic Attribute Profile
 
 static const char *TAG = "BLE_SERVER";
-static uint8_t g_ble_addr_type;                  // "g" prefix stands for "global"
+static uint8_t g_ble_addr_type;                  // "g" indicates that the variable has global scope (a naming convension)
 static ble_intensity_cb_t g_intensity_cb = NULL; // cb = callback
 
 static const ble_uuid128_t gatt_svc_uuid = // uuid = universal unique identifier
@@ -52,7 +52,7 @@ static const struct ble_gatt_svc_def gatt_svcs[] = {
         .characteristics =
             (struct ble_gatt_chr_def[]){
                 {
-                    .uuid = &gatt_chr_uuid.u,
+                    .uuid = &gatt_chr_uuid.u, // chr = characteristic
                     .access_cb = gatt_access_cb,
                     .flags = BLE_GATT_CHR_F_WRITE | BLE_GATT_CHR_F_READ,
                 },
@@ -62,7 +62,7 @@ static const struct ble_gatt_svc_def gatt_svcs[] = {
 
 static void ble_start_advertising(void)
 {
-  struct ble_gap_adv_params adv_params;
+  struct ble_gap_adv_params adv_params; // adv = advertising
   struct ble_hs_adv_fields fields;
 
   memset(&fields, 0, sizeof(fields));
@@ -100,7 +100,7 @@ esp_err_t ble_server_init(ble_intensity_cb_t cb)
 {
   g_intensity_cb = cb;
 
-  // Initialize NVS
+  // Initialize NVS (Non-Volatile Storage)
   esp_err_t ret = nvs_flash_init();
   if (ret == ESP_ERR_NVS_NO_FREE_PAGES ||
       ret == ESP_ERR_NVS_NEW_VERSION_FOUND)
@@ -110,14 +110,14 @@ esp_err_t ble_server_init(ble_intensity_cb_t cb)
   }
   ESP_ERROR_CHECK(ret);
 
-  ESP_ERROR_CHECK(nimble_port_init());
+  ESP_ERROR_CHECK(nimble_port_init()); // No idea why it's named nimble_port_init() instead of simply nimble_init()
 
-  ble_svc_gap_init();
+  ble_svc_gap_init(); // svc = service
   ble_svc_gatt_init();
-  ble_gatts_count_cfg(gatt_svcs);
+  ble_gatts_count_cfg(gatt_svcs); // cfg = configuration
   ble_gatts_add_svcs(gatt_svcs);
 
-  ble_hs_cfg.sync_cb = ble_on_sync; // hs = Host Stack
+  ble_hs_cfg.sync_cb = ble_on_sync; // hs = Host Stack, cb = callback
 
   nimble_port_freertos_init(nimble_host_task);
 
