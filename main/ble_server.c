@@ -4,37 +4,39 @@
 #include <stdio.h>
 #include <string.h>
 
-
-#include "host/ble_hs.h"
+#include "host/ble_hs.h" // BLE = Bluetooth Low Energy
 #include "nimble/nimble_port.h"
 #include "nimble/nimble_port_freertos.h"
-#include "services/gap/ble_svc_gap.h"
-#include "services/gatt/ble_svc_gatt.h"
-
+#include "services/gap/ble_svc_gap.h"   // svc = service
+#include "services/gatt/ble_svc_gatt.h" // GATT = Generic Attribute Profile
 
 static const char *TAG = "BLE_SERVER";
-static uint8_t g_ble_addr_type;
-static ble_intensity_cb_t g_intensity_cb = NULL;
+static uint8_t g_ble_addr_type;                  // "g" prefix stands for "global"
+static ble_intensity_cb_t g_intensity_cb = NULL; // cb = callback
 
-static const ble_uuid128_t gatt_svc_uuid =
+static const ble_uuid128_t gatt_svc_uuid = // uuid = universal unique identifier
     BLE_UUID128_INIT(0xf0, 0xde, 0xbc, 0x9a, 0x78, 0x56, 0x34, 0x12, 0x34, 0x12,
                      0x34, 0x12, 0x78, 0x56, 0x34, 0x12);
 
-static const ble_uuid128_t gatt_chr_uuid =
+static const ble_uuid128_t gatt_chr_uuid = // chr = characteristic
     BLE_UUID128_INIT(0xf1, 0xde, 0xbc, 0x9a, 0x78, 0x56, 0x34, 0x12, 0x34, 0x12,
                      0x34, 0x12, 0x78, 0x56, 0x34, 0x12);
 
 static int gatt_access_cb(uint16_t conn_handle, uint16_t attr_handle,
-                          struct ble_gatt_access_ctxt *ctxt, void *arg) {
-  if (ctxt->op == BLE_GATT_ACCESS_OP_WRITE_CHR) {
-    if (ctxt->om->om_len > 0) {
+                          struct ble_gatt_access_ctxt *ctxt, void *arg)
+{
+  if (ctxt->op == BLE_GATT_ACCESS_OP_WRITE_CHR) // op = operation
+  {
+    if (ctxt->om->om_len > 0) // ctxt = context; om = operation message
+    {
       uint8_t intensity = ctxt->om->om_data[0];
       if (intensity > 100)
         intensity = 100;
 
       ESP_LOGI(TAG, "BLE Intensity Write: %d%%", intensity);
 
-      if (g_intensity_cb != NULL) {
+      if (g_intensity_cb != NULL)
+      {
         g_intensity_cb(intensity);
       }
     }
@@ -58,14 +60,15 @@ static const struct ble_gatt_svc_def gatt_svcs[] = {
     },
     {0}};
 
-static void ble_start_advertising(void) {
+static void ble_start_advertising(void)
+{
   struct ble_gap_adv_params adv_params;
   struct ble_hs_adv_fields fields;
 
   memset(&fields, 0, sizeof(fields));
   fields.flags = BLE_HS_ADV_F_DISC_GEN | BLE_HS_ADV_F_BREDR_UNSUP;
 
-  const char *device_name = "ESP32-LED";
+  const char *device_name = "Smart LED";
   fields.name = (uint8_t *)device_name;
   fields.name_len = strlen(device_name);
   fields.name_is_complete = 1;
@@ -81,22 +84,27 @@ static void ble_start_advertising(void) {
   ESP_LOGI(TAG, "Advertising started as '%s'", device_name);
 }
 
-static void ble_on_sync(void) {
+static void ble_on_sync(void)
+{
   ble_hs_id_infer_auto(0, &g_ble_addr_type);
   ble_start_advertising();
 }
 
-static void nimble_host_task(void *param) {
+static void nimble_host_task(void *param)
+{
   nimble_port_run();
   nimble_port_freertos_deinit();
 }
 
-esp_err_t ble_server_init(ble_intensity_cb_t cb) {
+esp_err_t ble_server_init(ble_intensity_cb_t cb)
+{
   g_intensity_cb = cb;
 
+  // Initialize NVS
   esp_err_t ret = nvs_flash_init();
   if (ret == ESP_ERR_NVS_NO_FREE_PAGES ||
-      ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
+      ret == ESP_ERR_NVS_NEW_VERSION_FOUND)
+  {
     ESP_ERROR_CHECK(nvs_flash_erase());
     ret = nvs_flash_init();
   }
@@ -109,7 +117,7 @@ esp_err_t ble_server_init(ble_intensity_cb_t cb) {
   ble_gatts_count_cfg(gatt_svcs);
   ble_gatts_add_svcs(gatt_svcs);
 
-  ble_hs_cfg.sync_cb = ble_on_sync;
+  ble_hs_cfg.sync_cb = ble_on_sync; // hs = Host Stack
 
   nimble_port_freertos_init(nimble_host_task);
 
