@@ -6,77 +6,11 @@
 #include "esp_timer.h"
 #include "led.h"
 #include "nvs_flash.h"
+#include "storage.h"
 
 static const char *TAG = "LED";
 
 #define LED_DEFAULT_INTENSITY_PERCENT 100
-#define LED_DATA_NAMESPACE "led_data"
-// Note: Keys must be under 15 characters, including the null terminator
-#define LED_INTENSITY_PERCENT_KEY "intensity_pct"
-
-static esp_err_t led_set_intensity_in_flash(led_t *led,
-                                            uint8_t intensity_percent) {
-  // Store the new intensity in NVS
-  nvs_handle_t my_handle;
-  esp_err_t err = nvs_open(LED_DATA_NAMESPACE, NVS_READWRITE, &my_handle);
-  if (err == ESP_OK) {
-    err = nvs_set_i8(my_handle, LED_INTENSITY_PERCENT_KEY, intensity_percent);
-    if (err == ESP_OK) {
-      nvs_commit(my_handle);
-    } else {
-      ESP_LOGE(TAG, "Error writing key (%s)!\n", esp_err_to_name(err));
-    }
-  } else if (err == ESP_ERR_NVS_NOT_FOUND) {
-    ESP_LOGW(TAG, "NVS namespace not found. Attempting to create it.");
-    err = nvs_open(LED_DATA_NAMESPACE, NVS_READWRITE, &my_handle);
-    if (err == ESP_OK) {
-      err = nvs_set_i8(my_handle, LED_INTENSITY_PERCENT_KEY, intensity_percent);
-      if (err == ESP_OK) {
-        nvs_commit(my_handle);
-        ESP_LOGI(TAG,
-                 "NVS namespace created and intensity percent set to %" PRIu8
-                 "\n",
-                 intensity_percent);
-      } else {
-        ESP_LOGE(TAG, "Error writing key after creating namespace (%s)!\n",
-                 esp_err_to_name(err));
-      }
-    } else {
-      ESP_LOGE(TAG, "Error creating NVS namespace (%s)!\n",
-               esp_err_to_name(err));
-    }
-  } else {
-    ESP_LOGE(TAG, "Error opening NVS handle (%s)!\n", esp_err_to_name(err));
-  }
-  nvs_close(my_handle);
-  return ESP_OK;
-}
-
-static esp_err_t led_get_intensity_from_flash(int8_t *intensity_percent) {
-  nvs_handle_t my_handle;
-  esp_err_t err = nvs_open(LED_DATA_NAMESPACE, NVS_READONLY, &my_handle);
-  if (err == ESP_OK) {
-    err = nvs_get_i8(my_handle, LED_INTENSITY_PERCENT_KEY, intensity_percent);
-    if (err == ESP_OK) {
-      ESP_LOGI(TAG, "Intensity percent read successfully: %" PRIi8 "\n",
-               *intensity_percent);
-    } else if (err == ESP_ERR_NVS_NOT_FOUND) {
-      ESP_LOGW(TAG,
-               "Key '" LED_INTENSITY_PERCENT_KEY
-               "' was not found in NVS. Using default "
-               "value: %" PRIi8 "\n",
-               *intensity_percent);
-      *intensity_percent = LED_DEFAULT_INTENSITY_PERCENT;
-    } else {
-      ESP_LOGE(TAG, "Error reading key (%s)!\n", esp_err_to_name(err));
-    }
-  } else {
-    ESP_LOGE(TAG, "Error opening NVS handle (%s)!\n", esp_err_to_name(err));
-    *intensity_percent = LED_DEFAULT_INTENSITY_PERCENT;
-  }
-  nvs_close(my_handle);
-  return err;
-}
 
 struct led_t {
   gpio_num_t gpio;
@@ -122,8 +56,7 @@ led_t *led_init(gpio_num_t gpio, ledc_channel_t channel,
     intensity_percent = stored_intensity;
   } else {
     intensity_percent = LED_DEFAULT_INTENSITY_PERCENT;
-    esp_err_t err = led_set_intensity_in_flash(
-        led, intensity_percent); // Store the default intensity in NVS
+    esp_err_t err = led_set_intensity_in_flash(intensity_percent);
     if (err != ESP_OK) {
       ESP_LOGE(TAG, "Failed to store default intensity in NVS: %s",
                esp_err_to_name(err));
@@ -167,7 +100,7 @@ esp_err_t led_set_intensity(led_t *led, uint8_t duty_percent) {
 
   led->intensity_percent = duty_percent;
 
-  esp_err_t err = led_set_intensity_in_flash(led, duty_percent);
+  esp_err_t err = led_set_intensity_in_flash(duty_percent);
   if (err != ESP_OK) {
     ESP_LOGE(TAG, "Failed to store intensity in NVS: %s", esp_err_to_name(err));
   }
