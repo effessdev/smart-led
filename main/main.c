@@ -25,7 +25,7 @@ void app_main(void) {
 
   led_obj = led_init(GPIO_NUM_18, LEDC_CHANNEL_0, LEDC_TIMER_0);
 
-  uint8_t blink_pattern[12] = {1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0};
+  uint8_t blink_pattern[12] = {1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0};
 
   led_set_pattern(led_obj, blink_pattern);
 
