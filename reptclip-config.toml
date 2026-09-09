@@ -1,0 +1,7 @@
+include = ["AGENTS.md", "**/*.py"]
+exclude = []
+
+[[presets]]
+name = "src"
+include = ["**/*.c", "**/*.h"]
+exclude = []
