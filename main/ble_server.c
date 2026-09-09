@@ -5,45 +5,21 @@
 
 #include "host/ble_att.h"
 #include "host/ble_gatt.h"
-#include "host/ble_hs.h" // BLE = Bluetooth Low Energy
+#include "host/ble_hs.h"
 #include "nimble/nimble_port.h"
 #include "nimble/nimble_port_freertos.h"
-#include "services/gap/ble_svc_gap.h"   // svc = service
-#include "services/gatt/ble_svc_gatt.h" // GATT = Generic Attribute Profile
+#include "services/gap/ble_svc_gap.h" // svc = service
+#include "services/gatt/ble_svc_gatt.h"
 
 static const char *TAG = "BLE_SERVER";
-static uint8_t g_ble_addr_type; // "g" indicates that the variable has global
-                                // scope (a naming convension)
+static uint8_t g_ble_addr_type;                  // "g" indicates global scope
 static ble_intensity_cb_t g_intensity_cb = NULL; // cb = callback
 
-static const ble_uuid128_t LED_SVC_UUID = // uuid = universal unique identifier
-    BLE_UUID128_INIT(0xf0, 0xde, 0xbc, 0x9a, 0x78, 0x56, 0x34, 0x12, 0x34, 0x12,
-                     0x34, 0x12, 0x78, 0x56, 0x34, 0x12);
+// Standard BLE 16-bit UUID for "Automation IO Service" (0x1815)
+static const ble_uuid16_t LED_SVC_UUID = BLE_UUID16_INIT(0x1815);
 
-static const ble_uuid128_t BRIGHTNESS_CHR_UUID = // chr = characteristic
-    BLE_UUID128_INIT(0xf1, 0xde, 0xbc, 0x9a, 0x78, 0x56, 0x34, 0x12, 0x34, 0x12,
-                     0x34, 0x12, 0x78, 0x56, 0x34, 0x12);
-
-static const ble_uuid16_t USER_DESC_DESCRIPTOR_UUID =
-    BLE_UUID16_INIT(0x2901); // Standard UUID for User Description
-
-static int desc_access_cb(uint16_t conn_handle, uint16_t attr_handle,
-                          struct ble_gatt_access_ctxt *ctxt, void *arg) {
-  if (ctxt->op == BLE_GATT_ACCESS_OP_READ_DSC) {
-    const char *desc = "LED Brightness Level (0-100)";
-    os_mbuf_append(ctxt->om, desc, strlen(desc));
-    return 0;
-  }
-  return BLE_ATT_ERR_UNLIKELY;
-}
-
-static struct ble_gatt_dsc_def brightness_descriptors[] = {
-    {
-        .uuid = &USER_DESC_DESCRIPTOR_UUID.u,
-        .att_flags = BLE_ATT_F_READ,
-        .access_cb = desc_access_cb,
-    },
-    {0}};
+// Standard BLE 16-bit UUID for "Analog" characteristic (0x2A58)
+static const ble_uuid16_t BRIGHTNESS_CHR_UUID = BLE_UUID16_INIT(0x2a58);
 
 static int brightness_write_handler(uint16_t conn_handle, uint16_t attr_handle,
                                     struct ble_gatt_access_ctxt *ctxt,
@@ -74,10 +50,9 @@ static const struct ble_gatt_svc_def LED_SVC[] = {
         .characteristics =
             (struct ble_gatt_chr_def[]){
                 {
-                    .uuid = &BRIGHTNESS_CHR_UUID.u, // chr = characteristic
+                    .uuid = &BRIGHTNESS_CHR_UUID.u,
                     .access_cb = brightness_write_handler,
                     .flags = BLE_GATT_CHR_F_WRITE | BLE_GATT_CHR_F_READ,
-                    .descriptors = brightness_descriptors,
                 },
                 {0}},
     },
@@ -119,9 +94,7 @@ static void nimble_host_task(void *param) {
 esp_err_t ble_server_init(ble_intensity_cb_t cb) {
   g_intensity_cb = cb;
 
-  ESP_ERROR_CHECK(
-      nimble_port_init()); // No idea why it's named nimble_port_init() instead
-                           // of simply nimble_init()
+  ESP_ERROR_CHECK(nimble_port_init());
 
   ble_svc_gap_init(); // svc = service
   ble_svc_gatt_init();
