@@ -8,11 +8,11 @@
 #include "host/ble_hs.h"
 #include "nimble/nimble_port.h"
 #include "nimble/nimble_port_freertos.h"
-#include "services/gap/ble_svc_gap.h" // svc = service
+#include "services/gap/ble_svc_gap.h"
 #include "services/gatt/ble_svc_gatt.h"
 
 static const char *TAG = "BLE_SERVER";
-static uint8_t g_ble_addr_type;                  // "g" indicates global scope
+static uint8_t g_ble_addr_type;
 static ble_intensity_cb_t g_intensity_cb = NULL; // cb = callback
 
 // Standard BLE 16-bit UUID for "Automation IO Service" (0x1815)
