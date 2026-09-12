@@ -13,29 +13,28 @@
 
 static const char *TAG = "BLE_SERVER";
 static uint8_t g_ble_addr_type;
-static ble_intensity_cb_t g_intensity_cb = NULL; // cb = callback
+static QueueHandle_t g_cmd_queue = NULL; // Replaced callback with queue handle
 
-// Standard BLE 16-bit UUID for "Automation IO Service" (0x1815)
 static const ble_uuid16_t LED_SVC_UUID = BLE_UUID16_INIT(0x1815);
-
-// Standard BLE 16-bit UUID for "Analog" characteristic (0x2A58)
 static const ble_uuid16_t BRIGHTNESS_CHR_UUID = BLE_UUID16_INIT(0x2a58);
 
 static int brightness_write_handler(uint16_t conn_handle, uint16_t attr_handle,
                                     struct ble_gatt_access_ctxt *ctxt,
                                     void *arg) {
-  if (ctxt->op == BLE_GATT_ACCESS_OP_WRITE_CHR) // op = operation
-  {
-    if (ctxt->om->om_len > 0) // ctxt = context; om = operation message
-    {
+  if (ctxt->op == BLE_GATT_ACCESS_OP_WRITE_CHR) {
+    if (ctxt->om->om_len > 0) {
       uint8_t intensity = ctxt->om->om_data[0];
-      if (intensity > 100)
-        intensity = 100;
 
-      ESP_LOGI(TAG, "BLE Intensity Write: %d%%", intensity);
+      ESP_LOGI(TAG, "BLE Received Intensity: %d%%", intensity);
 
-      if (g_intensity_cb != NULL) {
-        g_intensity_cb(intensity);
+      // Package data and send to queue
+      if (g_cmd_queue != NULL) {
+        app_cmd_t cmd;
+        cmd.type = CMD_SET_INTENSITY;
+        cmd.payload.intensity = intensity;
+
+        // Push to queue immediately (0 ticks blocking)
+        xQueueSend(g_cmd_queue, &cmd, 0);
       }
     }
     return 0;
@@ -91,17 +90,17 @@ static void nimble_host_task(void *param) {
   nimble_port_freertos_deinit();
 }
 
-esp_err_t ble_server_init(ble_intensity_cb_t cb) {
-  g_intensity_cb = cb;
+esp_err_t ble_server_init(QueueHandle_t cmd_queue) {
+  g_cmd_queue = cmd_queue; // Store the queue handle
 
   ESP_ERROR_CHECK(nimble_port_init());
 
-  ble_svc_gap_init(); // svc = service
+  ble_svc_gap_init();
   ble_svc_gatt_init();
-  ble_gatts_count_cfg(LED_SVC); // cfg = configuration
+  ble_gatts_count_cfg(LED_SVC);
   ble_gatts_add_svcs(LED_SVC);
 
-  ble_hs_cfg.sync_cb = ble_on_sync; // hs = Host Stack, cb = callback
+  ble_hs_cfg.sync_cb = ble_on_sync;
 
   nimble_port_freertos_init(nimble_host_task);
 

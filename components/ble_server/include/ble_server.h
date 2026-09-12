@@ -1,17 +1,20 @@
-#ifndef BLE_SERVER_H
-#define BLE_SERVER_H
+#pragma once
 
 #include "esp_err.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/queue.h"
 #include <stdint.h>
 
-// Function pointer signature for handling intensity changes
-typedef void (*ble_intensity_cb_t)(uint8_t intensity);
+typedef enum {
+  CMD_SET_INTENSITY,
+  // (CMD_SET_PATTERN will go here later)
+} app_cmd_type_t;
 
-/**
- * @brief Initializes NVS, NimBLE, GATT services, and starts advertising.
- * @param cb Callback function to invoke when a mobile write occurs.
- * @return ESP_OK on success.
- */
-esp_err_t ble_server_init(ble_intensity_cb_t cb);
+typedef struct {
+  app_cmd_type_t type;
+  union {
+    uint8_t intensity;
+  } payload;
+} app_cmd_t;
 
-#endif // BLE_SERVER_H
+esp_err_t ble_server_init(QueueHandle_t cmd_queue);
