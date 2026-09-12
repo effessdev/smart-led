@@ -5,3 +5,7 @@ exclude = []
 name = "src"
 include = ["**/*.c", "**/*.h"]
 exclude = []
+
+[[presets]]
+name = "cm"
+include = ["**/CMakeLists.txt"]
