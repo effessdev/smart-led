@@ -4,7 +4,6 @@
 #include "esp_err.h"
 #include <stdint.h>
 
-
 // Function pointer signature for handling intensity changes
 typedef void (*ble_intensity_cb_t)(uint8_t intensity);
 
