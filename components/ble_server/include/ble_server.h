@@ -1,7 +1,7 @@
 #pragma once
 
 #include "esp_err.h"
-#include "freertos/FreeRTOS.h"
+#include "freertos/FreeRTOS.h" // IWYU pragma: keep
 #include "freertos/queue.h"
 #include <stdint.h>
 

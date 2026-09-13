@@ -1,6 +1,5 @@
 #include "ble_server.h"
 #include "esp_log.h"
-#include <stdio.h>
 #include <string.h>
 
 #include "host/ble_att.h"
