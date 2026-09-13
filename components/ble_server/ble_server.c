@@ -16,6 +16,7 @@ static QueueHandle_t g_cmd_queue = NULL; // Replaced callback with queue handle
 
 static const ble_uuid16_t LED_SVC_UUID = BLE_UUID16_INIT(0x1815);
 static const ble_uuid16_t BRIGHTNESS_CHR_UUID = BLE_UUID16_INIT(0x2a58);
+static const ble_uuid16_t PATTERN_CHR_UUID = BLE_UUID16_INIT(0x2a59);
 
 static int brightness_write_handler(uint16_t conn_handle, uint16_t attr_handle,
                                     struct ble_gatt_access_ctxt *ctxt,
@@ -41,6 +42,27 @@ static int brightness_write_handler(uint16_t conn_handle, uint16_t attr_handle,
   return BLE_ATT_ERR_UNLIKELY;
 }
 
+static int pattern_write_handler(uint16_t conn_handle, uint16_t attr_handle,
+                                 struct ble_gatt_access_ctxt *ctxt, void *arg) {
+  if (ctxt->op == BLE_GATT_ACCESS_OP_WRITE_CHR) {
+    if (ctxt->om->om_len >= LED_PATTERN_LEN) {
+      app_cmd_t cmd;
+      cmd.type = CMD_SET_PATTERN;
+
+      memcpy(cmd.payload.pattern, ctxt->om->om_data, LED_PATTERN_LEN);
+
+      ESP_LOGI(TAG, "BLE Received New Pattern");
+
+      if (g_cmd_queue != NULL) {
+        xQueueSend(g_cmd_queue, &cmd, 0);
+      }
+      return 0;
+    }
+    return BLE_ATT_ERR_INVALID_ATTR_VALUE_LEN;
+  }
+  return BLE_ATT_ERR_UNLIKELY;
+}
+
 static const struct ble_gatt_svc_def LED_SVC[] = {
     {
         .type = BLE_GATT_SVC_TYPE_PRIMARY,
@@ -50,6 +72,11 @@ static const struct ble_gatt_svc_def LED_SVC[] = {
                 {
                     .uuid = &BRIGHTNESS_CHR_UUID.u,
                     .access_cb = brightness_write_handler,
+                    .flags = BLE_GATT_CHR_F_WRITE | BLE_GATT_CHR_F_READ,
+                },
+                {
+                    .uuid = &PATTERN_CHR_UUID.u,
+                    .access_cb = pattern_write_handler,
                     .flags = BLE_GATT_CHR_F_WRITE | BLE_GATT_CHR_F_READ,
                 },
                 {0}},

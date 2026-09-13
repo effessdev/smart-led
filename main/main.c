@@ -25,7 +25,12 @@ static void app_manager_task(void *arg) {
         }
         break;
 
-        // Future commands (CMD_SET_PATTERN) will be handled here
+      case CMD_SET_PATTERN:
+        if (led_obj != NULL) {
+          ESP_LOGI("APP_MGR", "Applying new pattern");
+          led_set_pattern(led_obj, cmd.payload.pattern);
+        }
+        break;
       }
     }
   }
