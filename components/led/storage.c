@@ -1,6 +1,6 @@
 
 #include "esp_log.h"
-#include "nvs_flash.h"
+#include "nvs.h"
 
 static const char *TAG = "LED_STORAGE";
 

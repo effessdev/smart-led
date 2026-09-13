@@ -1,9 +1,9 @@
 #ifndef LED_H
 #define LED_H
 
-#include "driver/gpio.h"
-#include "driver/ledc.h"
 #include "esp_err.h"
+#include "hal/ledc_types.h"
+#include "soc/gpio_num.h"
 #include "stdbool.h"
 #include "stdint.h"
 

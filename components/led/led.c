@@ -2,10 +2,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "driver/ledc.h"
 #include "esp_log.h"
 #include "esp_timer.h"
 #include "led.h"
-#include "nvs_flash.h"
 #include "storage.h"
 
 static const char *TAG = "LED";

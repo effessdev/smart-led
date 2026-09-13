@@ -1,5 +1,4 @@
-#include "esp_log.h"
-#include "nvs_flash.h"
+#include "esp_err.h"
 
 /**
  * Note: Errors are logged and povided to the caller. No need to log them twice.
