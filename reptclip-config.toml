@@ -1,4 +1,4 @@
-include = ["AGENTS.md", "**/*.py"]
+include = ["AGENTS.md"]
 exclude = []
 
 [[presets]]
