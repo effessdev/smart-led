@@ -1,3 +1,4 @@
+#include "esp_crt_bundle.h"
 #include "esp_https_ota.h"
 #include "esp_log.h"
 #include "esp_ota_ops.h"
@@ -13,7 +14,8 @@ esp_err_t perform_ota_update(const char *firmware_url) {
 
   esp_http_client_config_t http_config = {
       .url = firmware_url,
-      .cert_pem = (const char *)server_cert_pem_start,
+      .crt_bundle_attach =
+          esp_crt_bundle_attach, // Uses ESP-IDF bundled public CAs
       .timeout_ms = 30000,
       .keep_alive_enable = true,
   };
