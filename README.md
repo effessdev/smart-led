@@ -14,6 +14,13 @@ You can control the LED using nRF Connect:
 1. Connect to the device named "Smart LED"
 2. Upload the values to the desired characteristics
 
+## Required Menuconfig Configurations
+
+- Partition Table: Factory app, two OTA definitions.
+- Component config > Bluetooth:
+  - Bluetooth (box): Checked
+  - Host: NimBLE (BLE only)
+
 ## The MCU I Used
 
 The following information were read using the `esptool.py` command.
