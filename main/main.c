@@ -5,6 +5,7 @@
 #include "freertos/task.h"
 #include "led.h"
 #include "nvs_flash.h"
+#include "ota.h"
 
 static led_t *led_obj = NULL;
 static QueueHandle_t app_queue = NULL;
@@ -31,6 +32,12 @@ static void app_manager_task(void *arg) {
           led_set_pattern(led_obj, cmd.payload.pattern);
         }
         break;
+
+      case CMD_TRIGGER_OTA:
+        ESP_LOGI("APP_MGR", "Received OTA trigger URL: %s",
+                 cmd.payload.ota_url);
+        perform_ota_update(cmd.payload.ota_url);
+        break;
       }
     }
   }
@@ -54,13 +61,11 @@ void app_main(void) {
   // 1. Create a queue capable of holding 10 commands
   app_queue = xQueueCreate(10, sizeof(app_cmd_t));
 
-  // 2. Start the application manager task (2048 bytes stack, priority 5)
-  xTaskCreate(app_manager_task, "app_manager", 2048, NULL, 5, NULL);
+  xTaskCreate(app_manager_task, "app_manager", 8192, NULL, 5, NULL);
 
   // 3. Pass the queue to BLE so it can push messages to us
   ble_server_init(app_queue);
 
-  // The main task can just clean up and delete itself now,
-  // or you can use it for something else.
+  // The main task can just clean up and delete itself now
   vTaskDelete(NULL);
 }

@@ -18,6 +18,8 @@ esp_err_t perform_ota_update(const char *firmware_url) {
           esp_crt_bundle_attach, // Uses ESP-IDF bundled public CAs
       .timeout_ms = 30000,
       .keep_alive_enable = true,
+      .max_redirection_count =
+          5, // To handle GitHub Release download link redirects to AWS S3
   };
 
   esp_https_ota_config_t ota_config = {

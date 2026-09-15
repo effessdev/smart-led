@@ -20,6 +20,7 @@ You can control the LED using nRF Connect:
 - Component config > Bluetooth:
   - Bluetooth (box): Checked
   - Host: NimBLE (BLE only)
+- Serial flasher config > Flash size: 4MB (or more)
 
 ## The MCU I Used
 

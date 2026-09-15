@@ -12,11 +12,12 @@
 
 static const char *TAG = "BLE_SERVER";
 static uint8_t g_ble_addr_type;
-static QueueHandle_t g_cmd_queue = NULL; // Replaced callback with queue handle
+static QueueHandle_t g_cmd_queue = NULL;
 
 static const ble_uuid16_t LED_SVC_UUID = BLE_UUID16_INIT(0x1815);
 static const ble_uuid16_t BRIGHTNESS_CHR_UUID = BLE_UUID16_INIT(0x2a58);
 static const ble_uuid16_t PATTERN_CHR_UUID = BLE_UUID16_INIT(0x2a59);
+static const ble_uuid16_t OTA_CHR_UUID = BLE_UUID16_INIT(0x2a5a);
 
 static int brightness_write_handler(uint16_t conn_handle, uint16_t attr_handle,
                                     struct ble_gatt_access_ctxt *ctxt,
@@ -63,6 +64,32 @@ static int pattern_write_handler(uint16_t conn_handle, uint16_t attr_handle,
   return BLE_ATT_ERR_UNLIKELY;
 }
 
+static int ota_write_handler(uint16_t conn_handle, uint16_t attr_handle,
+                             struct ble_gatt_access_ctxt *ctxt, void *arg) {
+  if (ctxt->op == BLE_GATT_ACCESS_OP_WRITE_CHR) {
+    uint16_t len = OS_MBUF_PKTLEN(ctxt->om);
+    if (len > 0 && len < OTA_URL_MAX_LEN) {
+      app_cmd_t cmd;
+      cmd.type = CMD_TRIGGER_OTA;
+
+      int rc = ble_hs_mbuf_to_flat(ctxt->om, cmd.payload.ota_url, len, NULL);
+      if (rc != 0) {
+        return BLE_ATT_ERR_UNLIKELY;
+      }
+      cmd.payload.ota_url[len] = '\0';
+
+      ESP_LOGI(TAG, "BLE Received OTA URL: %s", cmd.payload.ota_url);
+
+      if (g_cmd_queue != NULL) {
+        xQueueSend(g_cmd_queue, &cmd, 0);
+      }
+      return 0;
+    }
+    return BLE_ATT_ERR_INVALID_ATTR_VALUE_LEN;
+  }
+  return BLE_ATT_ERR_UNLIKELY;
+}
+
 static const struct ble_gatt_svc_def LED_SVC[] = {
     {
         .type = BLE_GATT_SVC_TYPE_PRIMARY,
@@ -78,6 +105,11 @@ static const struct ble_gatt_svc_def LED_SVC[] = {
                     .uuid = &PATTERN_CHR_UUID.u,
                     .access_cb = pattern_write_handler,
                     .flags = BLE_GATT_CHR_F_WRITE | BLE_GATT_CHR_F_READ,
+                },
+                {
+                    .uuid = &OTA_CHR_UUID.u,
+                    .access_cb = ota_write_handler,
+                    .flags = BLE_GATT_CHR_F_WRITE,
                 },
                 {0}},
     },
