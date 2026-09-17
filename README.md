@@ -24,7 +24,7 @@ You can control the LED using nRF Connect:
 
 ## The MCU I Used
 
-The following information were read using the `esptool.py` command.
+The following information were obtained using the `esptool.py` command.
 
 ```
 Chip type:          ESP32-D0WD-V3 (revision v3.1)
