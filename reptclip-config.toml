@@ -7,5 +7,10 @@ include = ["**/*.c", "**/*.h"]
 exclude = []
 
 [[presets]]
+name = "csrc"
+include = ["**/*.c", "**/*.h", "**/CMakeLists.txt"]
+exclude = []
+
+[[presets]]
 name = "cm"
 include = ["**/CMakeLists.txt"]
