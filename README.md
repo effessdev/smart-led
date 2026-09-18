@@ -16,7 +16,7 @@ You can control the LED using nRF Connect:
 
 ## Required Menuconfig Configurations
 
-- Partition Table: Factory app, two OTA definitions.
+- Partition Table: Two large size OTA partitions
 - Component config > Bluetooth:
   - Bluetooth (box): Checked
   - Host: NimBLE (BLE only)
