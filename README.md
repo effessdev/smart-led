@@ -41,6 +41,10 @@ Detected flash size: 4MB
 Flash voltage set by a strapping pin: 3.3V
 ```
 
+## OTA Updates
+
+Experimental test implementation only. Active development in progress.
+
 ## Tutorials
 
 I put together a few quick tutorials sharing everything I learned while building this project. Check them out on my website:
