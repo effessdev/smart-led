@@ -14,12 +14,12 @@ esp_err_t perform_ota_update(const char *firmware_url) {
 
   esp_http_client_config_t http_config = {
       .url = firmware_url,
-      .crt_bundle_attach =
-          esp_crt_bundle_attach, // Uses ESP-IDF bundled public CAs
+      .crt_bundle_attach = esp_crt_bundle_attach,
       .timeout_ms = 30000,
       .keep_alive_enable = true,
-      .max_redirection_count =
-          5, // To handle GitHub Release download link redirects to AWS S3
+      .max_redirection_count = 5,
+      .buffer_size = 4096,
+      .buffer_size_tx = 1024,
   };
 
   esp_https_ota_config_t ota_config = {

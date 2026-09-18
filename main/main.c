@@ -18,6 +18,9 @@ static led_t *led_obj = NULL;
 static QueueHandle_t app_queue = NULL;
 
 #define WIFI_MAX_RETRY 5
+#define GITHUB_RELEASE_URL                                                     \
+  "https://github.com/effessdev/smart-led/releases/download/v0.1.0/"           \
+  "smart-led.bin"
 
 static const char *TAG = "WIFI_CONNECT";
 static EventGroupHandle_t s_wifi_event_group;
@@ -124,9 +127,9 @@ static void app_manager_task(void *arg) {
         break;
 
       case CMD_TRIGGER_OTA:
-        ESP_LOGI("APP_MGR", "Received OTA trigger URL: %s",
-                 cmd.payload.ota_url);
-        perform_ota_update(cmd.payload.ota_url);
+        ESP_LOGI("APP_MGR", "Received OTA trigger via BLE");
+        esp_wifi_set_ps(WIFI_PS_NONE);
+        perform_ota_update(GITHUB_RELEASE_URL);
         break;
       }
     }

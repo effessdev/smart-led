@@ -67,20 +67,14 @@ static int pattern_write_handler(uint16_t conn_handle, uint16_t attr_handle,
 static int ota_write_handler(uint16_t conn_handle, uint16_t attr_handle,
                              struct ble_gatt_access_ctxt *ctxt, void *arg) {
   if (ctxt->op == BLE_GATT_ACCESS_OP_WRITE_CHR) {
-    uint16_t len = OS_MBUF_PKTLEN(ctxt->om);
-    if (len > 0 && len < OTA_URL_MAX_LEN) {
-      app_cmd_t cmd;
-      cmd.type = CMD_TRIGGER_OTA;
+    if (ctxt->om->om_len > 0) {
+      uint8_t trigger_val = ctxt->om->om_data[0];
 
-      int rc = ble_hs_mbuf_to_flat(ctxt->om, cmd.payload.ota_url, len, NULL);
-      if (rc != 0) {
-        return BLE_ATT_ERR_UNLIKELY;
-      }
-      cmd.payload.ota_url[len] = '\0';
+      if (trigger_val == 0x01 && g_cmd_queue != NULL) {
+        app_cmd_t cmd = {0}; // Zero-initialize struct and union payload
+        cmd.type = CMD_TRIGGER_OTA;
 
-      ESP_LOGI(TAG, "BLE Received OTA URL: %s", cmd.payload.ota_url);
-
-      if (g_cmd_queue != NULL) {
+        ESP_LOGI(TAG, "BLE OTA Trigger received");
         xQueueSend(g_cmd_queue, &cmd, 0);
       }
       return 0;
