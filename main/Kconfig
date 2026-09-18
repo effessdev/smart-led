@@ -1,0 +1,25 @@
+menu "WiFi Configuration"
+
+config WIFI_CONNECT
+    bool "Enable WiFi connection at startup"
+    default y
+    help
+      Enable connecting to an access point at boot. Used by the application
+      to reach the network for OTA updates and other internet access.
+
+config WIFI_SSID
+    string "WiFi SSID"
+    default ""
+    help
+      SSID of the WiFi network to use. Do NOT store secrets in source
+      control; instead configure this via menuconfig on the device or in
+      local build environments.
+
+config WIFI_PASSWORD
+    string "WiFi Password"
+    default ""
+    help
+      Password for the WiFi network. Leave empty for open networks. This
+      value will be stored in sdkconfig (do not commit sdkconfig to VCS).
+
+endmenu
