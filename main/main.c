@@ -55,6 +55,8 @@ void app_main(void) {
   const esp_app_desc_t *running_app_info = esp_app_get_description();
 
   ESP_LOGI("MAIN", "Firmware version: %s", running_app_info->version);
+  ESP_LOGI("MAIN", "Compile date: %s", running_app_info->date);
+  ESP_LOGI("MAIN", "Compile time: %s", running_app_info->time);
 
   esp_err_t ret = nvs_flash_init();
   if (ret == ESP_ERR_NVS_NO_FREE_PAGES ||
