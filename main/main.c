@@ -1,4 +1,5 @@
 #include "ble_server.h"
+#include "esp_app_desc.h"
 #include "esp_err.h"
 #include "esp_log.h"
 #include "esp_wifi.h"
@@ -16,9 +17,6 @@ static led_t *led_obj = NULL;
 static QueueHandle_t app_queue = NULL;
 
 #define WIFI_MAX_RETRY 5
-#define GITHUB_RELEASE_URL                                                     \
-  "https://github.com/effessdev/smart-led/releases/download/v0.1.0/"           \
-  "smart-led.bin"
 
 // The Consumer Task: waits for commands and executes them
 static void app_manager_task(void *arg) {
@@ -46,7 +44,7 @@ static void app_manager_task(void *arg) {
       case CMD_TRIGGER_OTA:
         ESP_LOGI("APP_MGR", "Received OTA trigger via BLE");
         esp_wifi_set_ps(WIFI_PS_NONE);
-        perform_ota_update(GITHUB_RELEASE_URL);
+        perform_ota_update();
         break;
       }
     }
@@ -54,6 +52,10 @@ static void app_manager_task(void *arg) {
 }
 
 void app_main(void) {
+  const esp_app_desc_t *running_app_info = esp_app_get_description();
+
+  ESP_LOGI("MAIN", "Firmware version: %s", running_app_info->version);
+
   esp_err_t ret = nvs_flash_init();
   if (ret == ESP_ERR_NVS_NO_FREE_PAGES ||
       ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {

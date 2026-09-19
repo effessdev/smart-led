@@ -3,6 +3,6 @@
 
 #include "esp_err.h"
 
-esp_err_t perform_ota_update(const char *firmware_url);
+esp_err_t perform_ota_update();
 
 #endif // OTA_H

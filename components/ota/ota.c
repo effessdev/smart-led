@@ -1,19 +1,18 @@
 #include "esp_crt_bundle.h"
 #include "esp_https_ota.h"
 #include "esp_log.h"
-#include "esp_ota_ops.h"
 
 static const char *TAG = "OTA";
 
-// For production, embed your server's CA certificate
-extern const uint8_t server_cert_pem_start[] asm("_binary_ca_cert_pem_start");
-extern const uint8_t server_cert_pem_end[] asm("_binary_ca_cert_pem_end");
+#define FIRMWARE_URL                                                           \
+  "https://github.com/effessdev/smart-led/releases/latest/download/"           \
+  "smart-led.bin"
 
-esp_err_t perform_ota_update(const char *firmware_url) {
-  ESP_LOGI(TAG, "Starting OTA update from %s", firmware_url);
+esp_err_t perform_ota_update() {
+  ESP_LOGI(TAG, "Starting OTA update from %s", FIRMWARE_URL);
 
   esp_http_client_config_t http_config = {
-      .url = firmware_url,
+      .url = FIRMWARE_URL,
       .crt_bundle_attach = esp_crt_bundle_attach,
       .timeout_ms = 30000,
       .keep_alive_enable = true,
