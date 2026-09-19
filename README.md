@@ -56,3 +56,7 @@ I have also posted them on DEV.to. Here are the links:
 
 - [Beyond Arduino: Getting Started With ESP-IDF in VS Code](https://dev.to/effessdev/beyond-arduino-getting-started-with-esp-idf-in-vs-code-for-esp32-3ed4)
 - [ESP-IDF Bluetooth LE Beginner Tutorial](https://dev.to/effessdev/esp-idf-bluetooth-le-tutorial-53c)
+
+Also, the following tutorial helped me implement the OTA update functionality:
+
+- [How to Implement OTA Firmware Updates on ESP32](https://hubble.com/community/guides/how-to-implement-ota-firmware-updates-on-esp32/)
