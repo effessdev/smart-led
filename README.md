@@ -43,7 +43,7 @@ Flash voltage set by a strapping pin: 3.3V
 
 ## OTA Updates
 
-Experimental test implementation only. Active development in progress.
+To trigger an OTA update, upload a UNIT8 value to the characteristic with the UUID `0x2A5A` using nRF Connect.
 
 ## Tutorials
 
