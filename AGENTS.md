@@ -1,1 +1,1 @@
-ESP-IDF version: v6.0.2
+ESP-IDF version: v6

@@ -47,15 +47,9 @@ To trigger an OTA update, upload a UNIT8 value to the characteristic with the UU
 
 ## Tutorials
 
-I put together a few quick tutorials sharing everything I learned while building this project. Check them out on my website:
+I put together an ESP-IDF course that focuses on the fundamentals of the framework. Check it out here:
 
-- [ESP-IDF VS Code Setup Tutorial](https://effessdev.github.io/read/esp-idf-vscode-setup-guide/)
-- [ESP-IDF Bluetooth Low Energy Tutorial for Beginners](https://effessdev.github.io/read/ble-basics-in-esp-idf/)
-
-I have also posted them on DEV.to. Here are the links:
-
-- [Beyond Arduino: Getting Started With ESP-IDF in VS Code](https://dev.to/effessdev/beyond-arduino-getting-started-with-esp-idf-in-vs-code-for-esp32-3ed4)
-- [ESP-IDF Bluetooth LE Beginner Tutorial](https://dev.to/effessdev/esp-idf-bluetooth-le-tutorial-53c)
+- [ESP-IDF Course](https://effessdev.github.io/esp-idf/)
 
 Also, the following tutorial helped me implement the OTA update functionality:
 
