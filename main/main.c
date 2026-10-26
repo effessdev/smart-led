@@ -19,7 +19,7 @@ static QueueHandle_t app_queue = NULL;
 #define WIFI_MAX_RETRY 5
 
 // The Consumer Task: waits for commands and executes them
-static void app_manager_task(void *arg) {
+static void ble_event_consumer_task(void *arg) {
   app_cmd_t cmd;
 
   while (1) {
@@ -43,6 +43,8 @@ static void app_manager_task(void *arg) {
 
       case CMD_TRIGGER_OTA:
         ESP_LOGI("APP_MGR", "Received OTA trigger via BLE");
+
+        // Disable WiFi power save to ensure OTA works reliably
         esp_wifi_set_ps(WIFI_PS_NONE);
         perform_ota_update();
         break;
@@ -78,7 +80,8 @@ void app_main(void) {
   // 1. Create a queue capable of holding 10 commands
   app_queue = xQueueCreate(10, sizeof(app_cmd_t));
 
-  xTaskCreate(app_manager_task, "app_manager", 8192, NULL, 5, NULL);
+  xTaskCreate(ble_event_consumer_task, "ble_event_consumer_task", 8192, NULL, 5,
+              NULL);
 
   // 3. Pass the queue to BLE so it can push messages to us
   ble_server_init(app_queue);
